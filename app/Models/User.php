@@ -3,11 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -18,11 +19,20 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
     ];
 
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+     public function getJWTCustomClaims()
+    {
+        return [];
+    }
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -44,5 +54,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected function follower(){
+        return $this->hasMany('followers', 'follower_id', 'id');
+    }
+    protected function following(){
+        return $this->hasMany('followers', 'following_id', 'id');
+    }
+    protected function comment(){
+        return $this->hasMany('commnets', 'user_id', 'id');
+    }
+    protected function post(){
+        return $this->hasMany('posts', 'user_id', 'id');
+    }
+    protected function reply(){
+        return $this->hasMany('replies', 'user_id', 'id');
+    }
+    protected function like(){
+        return $this->hasMany('likes', 'user_id', 'id');
     }
 }
